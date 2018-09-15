@@ -1,0 +1,7 @@
+[package]
+name = "monolog"
+version = "0.1.0"
+authors = ["kissge <mail@yo.eki.do>"]
+
+[dependencies]
+comrak = "0.3.0"
