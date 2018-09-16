@@ -16,7 +16,8 @@ fn main() {
         let dst_path = str::replace(src_path.to_str().unwrap(), src_root, dst_root);
         let dst_path = str::replace(&dst_path, ".md", ".html");
 
-        fs::create_dir_all(Path::new(&dst_path).parent().unwrap()).expect("directory create failed");
+        fs::create_dir_all(Path::new(&dst_path).parent().unwrap())
+            .expect("directory create failed");
 
         println!("{} -> {}", src_path.display(), dst_path);
 
@@ -25,7 +26,8 @@ fn main() {
         f.read_to_string(&mut contents).expect("file read failed");
 
         let mut f = File::create(&dst_path).expect("file create failed");
-        f.write_all(markdown_to_html(&contents, &ComrakOptions::default()).as_bytes()).expect("file write failed");
+        f.write_all(markdown_to_html(&contents, &ComrakOptions::default()).as_bytes())
+            .expect("file write failed");
 
         let entry_path = str::replace(&dst_path, dst_root, "");
         entries.push(entry_path);
@@ -34,7 +36,8 @@ fn main() {
     let mut f = File::create(&format!("{}/index.html", dst_root)).expect("file create failed");
     f.write(b"<ol>").unwrap();
     for entry in entries {
-        f.write(&format!("<li><a href=\"{}\">{}</a></li>", entry, entry).as_bytes()).unwrap();
+        f.write(&format!("<li><a href=\"{}\">{}</a></li>", entry, entry).as_bytes())
+            .unwrap();
     }
     f.write(b"</ol>").unwrap();
 }
