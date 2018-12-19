@@ -1,6 +1,7 @@
 extern crate comrak;
 extern crate glob;
 use comrak::{markdown_to_html, ComrakOptions};
+use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::prelude::*;
 use std::path::Path;
@@ -9,7 +10,7 @@ fn main() {
     let src_root = "/home/yk/monolog";
     let dst_root = "/tmp/monolog";
 
-    let mut entries = vec![];
+    let mut entries = HashMap::new();
 
     for src_path in glob::glob(&format!("{}/**/*.md", src_root)).expect("File list up failed") {
         let src_path = src_path.unwrap();
@@ -21,6 +22,8 @@ fn main() {
 
         println!("{} -> {}", src_path.display(), dst_path);
 
+        let entry_key = &src_path.file_stem().unwrap().to_str().unwrap();
+
         let mut f = File::open(&src_path).expect("file open failed");
         let mut contents = String::new();
         f.read_to_string(&mut contents).expect("file read failed");
@@ -30,14 +33,14 @@ fn main() {
             .expect("file write failed");
 
         let entry_path = str::replace(&dst_path, dst_root, "");
-        entries.push(entry_path);
+        entries.insert(entry_key.to_string(), entry_path);
     }
 
     let mut f = File::create(&format!("{}/index.html", dst_root)).expect("file create failed");
-    f.write(b"<ol>").unwrap();
-    for entry in entries {
-        f.write(&format!("<li><a href=\"{}\">{}</a></li>", entry, entry).as_bytes())
+    f.write(b"<ol>\n").unwrap();
+    for (key, entry) in &entries {
+        f.write(&format!("<li><a href=\"{}\">{}</a></li>\n", entry, key).as_bytes())
             .unwrap();
     }
-    f.write(b"</ol>").unwrap();
+    f.write(b"</ol>\n").unwrap();
 }
