@@ -2,6 +2,7 @@ extern crate comrak;
 extern crate glob;
 use comrak::{markdown_to_html, ComrakOptions};
 use std::collections::HashMap;
+use std::env;
 use std::fs::{self, File};
 use std::io::prelude::*;
 use std::path::Path;
@@ -10,19 +11,21 @@ fn main() {
     let src_root = "/home/yk/monolog";
     let dst_root = "/tmp/monolog";
 
+    env::set_current_dir(Path::new(src_root)).expect(&format!("Cannot cd to {}", src_root));
+
     let mut entries = HashMap::new();
 
-    for src_path in glob::glob(&format!("{}/**/*.md", src_root)).expect("File list up failed") {
+    for src_path in glob::glob("**/*.md").expect("File list up failed") {
         let src_path = src_path.unwrap();
-        let dst_path = str::replace(src_path.to_str().unwrap(), src_root, dst_root);
-        let dst_path = str::replace(&dst_path, ".md", ".html");
+        let src_path = src_path.to_str().unwrap();
+        assert!(src_path.ends_with(".md"));
+        let canonical_path = src_path.get(..src_path.len() - 3).unwrap();
+        let dst_path = &format!("{}/{}.html", dst_root, canonical_path);
 
         fs::create_dir_all(Path::new(&dst_path).parent().unwrap())
             .expect("directory create failed");
 
-        println!("{} -> {}", src_path.display(), dst_path);
-
-        let entry_key = &src_path.file_stem().unwrap().to_str().unwrap();
+        println!("{} -> {}", src_path, dst_path);
 
         let mut f = File::open(&src_path).expect("file open failed");
         let mut contents = String::new();
@@ -33,7 +36,7 @@ fn main() {
             .expect("file write failed");
 
         let entry_path = str::replace(&dst_path, dst_root, "");
-        entries.insert(entry_key.to_string(), entry_path);
+        entries.insert(canonical_path.to_string(), entry_path);
     }
 
     let mut f = File::create(&format!("{}/index.html", dst_root)).expect("file create failed");
