@@ -8,8 +8,8 @@ use std::io::prelude::*;
 use std::path::Path;
 
 fn main() {
-    let src_root = "/home/yk/monolog";
-    let dst_root = "/tmp/monolog";
+    let src_root = "/mnt/c/files/monolog/src";
+    let dst_root = "/mnt/c/files/monolog/dst";
 
     env::set_current_dir(Path::new(src_root)).expect(&format!("Cannot cd to {}", src_root));
 
