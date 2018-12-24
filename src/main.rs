@@ -1,6 +1,9 @@
 extern crate comrak;
 extern crate glob;
+extern crate regex;
+
 use comrak::{markdown_to_html, ComrakOptions};
+use regex::Regex;
 use std::env;
 use std::fs::{self, File};
 use std::io::prelude::*;
@@ -36,9 +39,16 @@ fn main() {
         let mut contents = String::new();
         f.read_to_string(&mut contents).expect("file read failed");
 
+        let html = markdown_to_html(&contents, &ComrakOptions::default());
+        let re = Regex::new("<a href=\"\">(.*?)</a>").unwrap();
+
+        let html = re.replace_all(&html, |caps: &regex::Captures| {
+            assert!(targets.contains(&caps[1].to_string()));
+            format!("<a href=\"/{}.html\">{}</a>", &caps[1], &caps[1])
+        });
+
         let mut f = File::create(&dst_path).expect("file create failed");
-        f.write_all(markdown_to_html(&contents, &ComrakOptions::default()).as_bytes())
-            .expect("file write failed");
+        f.write_all(html.as_bytes()).expect("file write failed");
     }
 
     let mut f = File::create(&format!("{}/index.html", dst_root)).expect("file create failed");

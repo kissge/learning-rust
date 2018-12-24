@@ -6,3 +6,4 @@ authors = ["kissge <mail@yo.eki.do>"]
 [dependencies]
 comrak = "0.3.0"
 glob = "0.2"
+regex = "1"
